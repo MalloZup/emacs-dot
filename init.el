@@ -4,22 +4,29 @@
 
 ;; Define package repositories
 (require 'package)
-(add-to-list 'package-archives
-             '("tromey" . "http://tromey.com/elpa/") t)
-(add-to-list 'package-archives
-             '("melpa" . "http://melpa.milkbox.net/packages/") t)
-(add-to-list 'package-archives
-             '("melpa-stable" . "http://stable.melpa.org/packages/") t)
+(add-to-list 'package-archives '("tromey" . "http://tromey.com/elpa/") t)
+(add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
+(add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/") t)
+
+(add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/") t)
 
 (add-to-list 'package-pinned-packages '(cider . "melpa-stable") t)
 (add-to-list 'package-pinned-packages '(magit . "melpa-stable") t)
 
+(require 'org)
+(global-set-key (kbd "C-c l") 'org-store-link)
+(global-set-key (kbd "C-c a") 'org-agenda)
+(global-set-key (kbd "C-c c") 'org-capture)
+(define-key global-map "\C-ca" 'org-agenda)
+(setq org-log-done t)
+
+(setq org-agenda-files (list "~/org/personal.org"
+                             "~/org/work.org"))
 
 ;; Load and activate emacs packages. Do this first so that the
 ;; packages are loaded before you start trying to modify them.
 ;; This also sets the load path.
 (package-initialize)
-
 ;; Download the ELPA archive description if needed.
 ;; This informs Emacs about the latest versions of all packages, and
 ;; makes them available for download.
@@ -39,8 +46,7 @@
 ;; Add in your own as you wish:
 (defvar my-packages
   '(;; makes handling lisp expressions much, much easier
-    ;; Cheatsheet: http://www.emacswiki.org/emacs/PareditCheatsheet
-    paredit
+
 
     ;; key bindings and code colorization for Clojure
     ;; https://github.com/clojure-emacs/clojure-mode
@@ -66,8 +72,6 @@
     ;; project navigation
     projectile
 
-    ;; colorful parenthesis matching
-    rainbow-delimiters
 
     ;; git blame and other commmits utils
     git-messenger
@@ -131,9 +135,6 @@
 ;; Hard-to-categorize customizations
 (load "misc.el")
 
-;; For editing lisps
-(load "elisp-editing.el")
-
 ;; Langauage-specific
 (load "setup-clojure.el")
 (load "setup-js.el")
@@ -145,7 +146,7 @@
  '(coffee-tab-width 2)
  '(package-selected-packages
    (quote
-    (magit tagedit rainbow-delimiters projectile smex ido-completing-read+ cider clojure-mode-extra-font-locking clojure-mode paredit exec-path-from-shell))))
+    (magit tagedit rainbow-delimiters projectile smex ido-completing-read+ cider clojure-mode-extra-font-locking clojure-mode exec-path-from-shell))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -153,9 +154,9 @@
  ;; If there is more than one, they won't work right.
  )
 
-;; enable auto-completion mode by default
-(add-hook 'text-mode-hook 'auto-complete-mode)
-
+(org-mode 1)
+(ivy-mode 1)
+(setq ivy-use-virtual-buffers t)
 
 (setq enable-recursive-minibuffers t)
 
@@ -180,3 +181,13 @@
 (add-to-list 'load-path "/some/path/neotree")
 (require 'neotree)
 (global-set-key [f8] 'neotree-toggle)
+
+;; configuration for git-messenger
+(require 'git-messenger) ;; You need not to load if you install with package.el
+(global-set-key (kbd "C-x v p") 'git-messenger:popup-message)
+
+(define-key git-messenger-map (kbd "m") 'git-messenger:copy-message)
+
+;; Use magit-show-commit for showing status/diff commands
+(custom-set-variables
+ '(git-messenger:use-magit-popup t))
